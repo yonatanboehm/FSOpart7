@@ -10,7 +10,6 @@ import CreateNew from './components/CreateNew'
 import Footer from './components/Footer'
 import Anecdote from './components/Anecdote'
 
-
 const App = () => {
 
   const [anecdotes, setAnecdotes] = useState([
