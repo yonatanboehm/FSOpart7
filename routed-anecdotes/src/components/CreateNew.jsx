@@ -5,9 +5,9 @@ import { useField } from '../hooks/index'
 const CreateNew = ({ addNew, setNotification }) => {
   const navigate = useNavigate()
 
-  const content = useField('text')
-  const author = useField('text')
-  const info = useField('text')
+  const [content, resetContent] = useField('text')
+  const [author, resetAuthor] = useField('text')
+  const [info, resetInfo] = useField('text')
 
 
   const handleSubmit = (e) => {
@@ -22,9 +22,9 @@ const CreateNew = ({ addNew, setNotification }) => {
     setTimeout(() => {
       setNotification('')
     }, 5000)
-    content.reset()
-    author.reset()
-    info.reset()
+    resetAuthor()
+    resetContent()
+    resetInfo()
     navigate('/anecdotes')
   }
 
@@ -45,9 +45,9 @@ const CreateNew = ({ addNew, setNotification }) => {
           <input value={info.value} onChange={info.onChange} />
         </div>
         <button tyoe="submit">create</button><button type="button" onClick={() => {
-          content.reset()
-          author.reset()
-          info.reset()
+          resetAuthor()
+          resetContent()
+          resetInfo()
         }}>reset</button>
       </form>
     </div>
