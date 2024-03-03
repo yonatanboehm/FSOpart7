@@ -7,6 +7,7 @@ import blogService from "./services/blogs";
 import loginService from "./services/login";
 import { useSelector, useDispatch } from 'react-redux'
 import { notify } from "./reducers/notificationsReducer";
+import { createNewBlog, initializeBlogs } from "./reducers/blogsReducer";
 
 const Notification = ({ notification }) => {
   if (notification.notification === '') {
@@ -22,19 +23,14 @@ const Notification = ({ notification }) => {
 };
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
+  const blogs = useSelector(state => state.blogs);
   const [user, setUser] = useState(null);
 
   const notification = useSelector(state => state.notification)
   const dispatch = useDispatch()
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => {
-      const sortedBlogs = blogs.sort(
-        (blog1, blog2) => blog2.likes - blog1.likes,
-      );
-      setBlogs(sortedBlogs);
-    });
+    dispatch(initializeBlogs())
   }, []);
 
   useEffect(() => {
@@ -74,10 +70,11 @@ const App = () => {
   const handleCreate = async (blogObject) => {
     blogFormRef.current.toggleVisibility();
     try {
-      const returnedBlog = await blogService.create(blogObject);
-      returnedBlog.user = user;
-      setBlogs(blogs.concat(returnedBlog));
-      dispatch(notify(`a new blog "${returnedBlog.title}" by ${returnedBlog.author} added.`, 'success'));
+      dispatch(createNewBlog(blogObject))
+      dispatch(notify(
+        `a new blog "${blogObject.title}" by ${blogObject.author} added.`, 
+        'success'
+      ));
     } catch (exception) {
       console.log(exception)
       dispatch(notify(exception?.response?.data?.error, 'error'));
