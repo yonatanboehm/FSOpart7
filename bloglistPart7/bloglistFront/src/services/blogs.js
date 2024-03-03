@@ -13,7 +13,6 @@ const getAll = async () => {
 };
 
 const getOne = async (id) => {
-  console.log(baseUrl)
   const response = await axios.get(`${baseUrl}/${id}`);
   return response.data;
 };
@@ -30,7 +29,6 @@ const update = async (id, newObject) => {
   const config = {
     headers: { Authorization: token },
   };
-  console.log(baseUrl);
   const response = await axios.put(`${baseUrl}/${id}`, newObject, config);
   return response.data;
 };

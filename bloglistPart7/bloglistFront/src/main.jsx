@@ -11,8 +11,6 @@ const store = configureStore({reducer: {
   blogs: blogsReducer 
 }})
 
-console.log(store.getState())
-
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <App />

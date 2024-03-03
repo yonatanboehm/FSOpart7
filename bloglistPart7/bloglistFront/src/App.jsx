@@ -7,7 +7,7 @@ import blogService from "./services/blogs";
 import loginService from "./services/login";
 import { useSelector, useDispatch } from 'react-redux'
 import { notify } from "./reducers/notificationsReducer";
-import { createNewBlog, initializeBlogs } from "./reducers/blogsReducer";
+import { createNewBlog, deleteBlog, initializeBlogs, voteBlog } from "./reducers/blogsReducer";
 
 const Notification = ({ notification }) => {
   if (notification.notification === '') {
@@ -70,7 +70,7 @@ const App = () => {
   const handleCreate = async (blogObject) => {
     blogFormRef.current.toggleVisibility();
     try {
-      dispatch(createNewBlog(blogObject))
+      dispatch(createNewBlog(blogObject, user))
       dispatch(notify(
         `a new blog "${blogObject.title}" by ${blogObject.author} added.`, 
         'success'
@@ -84,19 +84,7 @@ const App = () => {
   const handleUpdate = async (id) => {
     try {
       const returnedBlog = await blogService.getOne(id);
-      returnedBlog.likes++;
-      await blogService.update(id, returnedBlog);
-
-      const likedBlog = blogs.find((blog) => blog.id === id);
-      likedBlog.likes++;
-      const updatedBlogs = blogs.map((blog) =>
-        blog.id === id ? likedBlog : blog,
-      );
-      const sortedBlogs = updatedBlogs.sort(
-        (blog1, blog2) => blog2.likes - blog1.likes,
-      );
-      setBlogs(sortedBlogs);
-      setBlogs(updatedBlogs);
+      dispatch(voteBlog(returnedBlog))
     } catch (exception) {
       dispatch(notify(
         exception.response.data.error,
@@ -107,9 +95,7 @@ const App = () => {
 
   const handleRemove = async (id) => {
     try {
-      await blogService.remove(id);
-      const blogsAfterDelete = blogs.filter((blog) => blog.id !== id);
-      setBlogs(blogsAfterDelete);
+      dispatch(deleteBlog(id))
       dispatch(notify(
         'deleted a blog',
         'success'

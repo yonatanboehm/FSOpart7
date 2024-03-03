@@ -31,7 +31,6 @@ export const { notifySuccess, notifyError, clear } = notificationSlice.actions
 
 export const notify = (notification, type) => {
   return async dispatch => {
-    console.log(type)
     if (type == 'success') {
       console.log(type)
       dispatch(notifySuccess(notification))
