@@ -4,10 +4,10 @@ import BlogForm from "./components/BlogForm";
 import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Togglable";
 import blogService from "./services/blogs";
-import loginService from "./services/login";
 import { useSelector, useDispatch } from 'react-redux'
 import { notify } from "./reducers/notificationsReducer";
 import { createNewBlog, deleteBlog, initializeBlogs, voteBlog } from "./reducers/blogsReducer";
+import { login, loadUser, logout } from "./reducers/userReducer";
 
 const Notification = ({ notification }) => {
   if (notification.notification === '') {
@@ -24,36 +24,32 @@ const Notification = ({ notification }) => {
 
 const App = () => {
   const blogs = useSelector(state => state.blogs);
-  const [user, setUser] = useState(null);
+  const user = useSelector(state => state.user);
 
   const notification = useSelector(state => state.notification)
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(initializeBlogs())
+    const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
+    if (loggedUserJSON) {
+      dispatch(loadUser(loggedUserJSON))
+    }
   }, []);
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      blogService.setToken(user.token);
-    }
+    dispatch(initializeBlogs())
   }, []);
 
   const blogFormRef = useRef();
 
   const handleLogin = async (username, password) => {
     try {
-      const user = await loginService.login({
+      dispatch(login({
         username,
         password,
-      });
-      window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
-      setUser(user);
-      blogService.setToken(user.token);
+      }));
     } catch (exception) {
+      console.log('sdfsdfs')
       dispatch(notify(
         exception.response.data.error,
         'error',
@@ -62,9 +58,7 @@ const App = () => {
   };
 
   const handleLogout = () => {
-    window.localStorage.removeItem("loggedBlogappUser");
-    setUser(null);
-    blogService.setToken(null);
+    dispatch(logout())
   };
 
   const handleCreate = async (blogObject) => {
