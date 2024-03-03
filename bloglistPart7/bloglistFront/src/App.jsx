@@ -5,24 +5,28 @@ import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Togglable";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
+import { useSelector, useDispatch } from 'react-redux'
+import { notify } from "./reducers/notificationsReducer";
 
-const Notification = (message) => {
-  if (message.message === null) {
+const Notification = ({ notification }) => {
+  if (notification.notification === '') {
     return null;
   }
-  const notifStyle = message.type ? { color: "green" } : { color: "red" };
+  const notifStyle = { color: notification.color }
 
   return (
     <div style={notifStyle} className="notif">
-      {message.message}
+      {notification.notification}
     </div>
   );
 };
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [message, setMessage] = useState({ message: null, type: null });
   const [user, setUser] = useState(null);
+
+  const notification = useSelector(state => state.notification)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     blogService.getAll().then((blogs) => {
@@ -54,10 +58,10 @@ const App = () => {
       setUser(user);
       blogService.setToken(user.token);
     } catch (exception) {
-      setMessage({ message: exception.response.data.error, type: null });
-      setTimeout(() => {
-        setMessage({ message: null, type: null });
-      }, 5000);
+      dispatch(notify(
+        exception.response.data.error,
+        'error',
+      ));
     }
   };
 
@@ -73,21 +77,10 @@ const App = () => {
       const returnedBlog = await blogService.create(blogObject);
       returnedBlog.user = user;
       setBlogs(blogs.concat(returnedBlog));
-      setMessage({
-        message: `a new blog "${returnedBlog.title}" by ${returnedBlog.author} added.`,
-        type: true,
-      });
-      setTimeout(() => {
-        setMessage({ message: null, type: null });
-      }, 5000);
+      dispatch(notify(`a new blog "${returnedBlog.title}" by ${returnedBlog.author} added.`, 'success'));
     } catch (exception) {
-      setMessage({
-        message: exception.response.data.error,
-        type: false,
-      }); // test this
-      setTimeout(() => {
-        setMessage({ message: null, type: null });
-      }, 5000);
+      console.log(exception)
+      dispatch(notify(exception?.response?.data?.error, 'error'));
     }
   };
 
@@ -108,14 +101,10 @@ const App = () => {
       setBlogs(sortedBlogs);
       setBlogs(updatedBlogs);
     } catch (exception) {
-      console.log(exception);
-      setMessage({
-        message: exception.response.data.error,
-        type: false,
-      }); // test this
-      setTimeout(() => {
-        setMessage({ message: null, type: null });
-      }, 5000);
+      dispatch(notify(
+        exception.response.data.error,
+        'error',
+      ));
     }
   };
 
@@ -124,21 +113,15 @@ const App = () => {
       await blogService.remove(id);
       const blogsAfterDelete = blogs.filter((blog) => blog.id !== id);
       setBlogs(blogsAfterDelete);
-      setMessage({
-        message: "Deleted blog",
-        type: true,
-      });
-      setTimeout(() => {
-        setMessage({ message: null, type: null });
-      }, 5000);
+      dispatch(notify(
+        'deleted a blog',
+        'success'
+      ));
     } catch (exception) {
-      setMessage({
-        message: exception.response.data.error,
-        type: false,
-      }); // test this
-      setTimeout(() => {
-        setMessage({ message: null, type: null });
-      }, 5000);
+      dispatch(notify(
+        exception.response.data.error,
+        'error'
+      ));
     }
   };
 
@@ -146,7 +129,7 @@ const App = () => {
     return (
       <div>
         <h2>Log in to application</h2>
-        <Notification message={message.message} type={message.type} />
+        <Notification notification={notification}/>
 
         <LoginForm handleLogin={handleLogin} />
       </div>
@@ -156,7 +139,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification message={message.message} type={message.type} />
+      <Notification notification={notification}/>
       <div>
         <p>
           {user.name} logged in <button onClick={handleLogout}>log out</button>

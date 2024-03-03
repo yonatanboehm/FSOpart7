@@ -8,6 +8,11 @@ blogsRouter.get("/", async (request, response) => {
   response.json(blogs);
 });
 
+blogsRouter.get("/:id", async (request, response) => {
+  const blog = await Blog.findById(request.params.id);
+  response.json(blog);
+});
+
 blogsRouter.post("/", middleware.userExtractor, async (request, response) => {
   const body = request.body;
   const decodedToken = jwt.verify(request.token, process.env.SECRET);
@@ -59,6 +64,7 @@ blogsRouter.delete(
 
 blogsRouter.put("/:id", async (request, response) => {
   // add 1 like
+  console.log('-----------------')
   const blog = await Blog.findById(request.params.id);
   blog.likes++;
   const result = await Blog.findByIdAndUpdate(
