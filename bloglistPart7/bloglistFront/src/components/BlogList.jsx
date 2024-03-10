@@ -1,23 +1,15 @@
-import Blog from "./Blog";
+import { Link } from "react-router-dom"
 
 const Bloglist = ({blogs, handleRemove, handleUpdate, user}) => {
   return (
     <div>
-      {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          title={blog.title}
-          url={blog.url}
-          author={blog.author} 
-          likes={blog.likes}
-          user={blog?.user?.name}
-          usernameBlog={blog?.user?.username} // question mark because no creating user in test ENV
-          usernameUser={user.username}
-          id={blog.id}
-          handleUpdate={handleUpdate}
-          handleRemove={handleRemove}
-        />
-      ))}
+      <ul>
+        {blogs.map((blog) => (
+          <li key={blog.id}>
+            <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

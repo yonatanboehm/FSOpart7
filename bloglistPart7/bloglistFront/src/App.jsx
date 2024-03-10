@@ -12,13 +12,19 @@ import {
   Routes,
   Route,
   Link,
-  Navigate,
   useMatch,
 } from "react-router-dom"
 import Bloglist from "./components/BlogList";
 import UsersList from "./components/UsersList";
 import User from "./components/User"
 import userServices from './services/users'
+import Blog from './components/Blog'
+import styled from 'styled-components'
+
+const Navigation = styled.div`
+  background: Grey;
+  padding: 0.5em;
+`
 
 const App = () => {
   const blogs = useSelector(state => state.blogs);
@@ -41,9 +47,14 @@ const App = () => {
     }
   }, []);
 
-  const match = useMatch('/users/:id')
-  const blogUser = match 
-    ? users.find(user => user.id == match.params.id)
+  const userMatch = useMatch('/users/:id')
+  const blogUser = userMatch 
+    ? users.find(user => user.id == userMatch.params.id)
+    : null
+
+  const blogMatch = useMatch('/blogs/:id')
+  const blog = blogMatch 
+    ? blogs.find(user => user.id == blogMatch.params.id)
     : null
 
   const blogFormRef = useRef();
@@ -125,11 +136,11 @@ const App = () => {
       <div> 
         <h2>blogs</h2>
         <Notification notification={notification}/>
-        <div>
-          <p>
-            {user.name} logged in <button onClick={handleLogout}>log out</button>
-          </p>
-        </div>
+        <Navigation>
+          <Link style={{padding: 5}} to="/">blogs</Link>
+          <Link style={{padding: 5}}  to="/users">users</Link>
+          {user.name} logged in <button onClick={handleLogout}>log out</button>
+        </Navigation>
         <Routes>
           <Route path="/" element={
             <div>
@@ -151,6 +162,19 @@ const App = () => {
           <Route path="/users/:id" element={<User 
             name={blogUser?.name}
             blogs={blogUser?.blogs} />} />
+          <Route path="/blogs/:id" element={<Blog 
+            key={blog?.id}
+            title={blog?.title}
+            url={blog?.url}
+            author={blog?.author} 
+            likes={blog?.likes}
+            user={blog?.user?.name}
+            usernameBlog={blog?.user?.username} // question mark because no creating user in test ENV
+            usernameUser={user?.username}
+            id={blog?.id}
+            handleUpdate={handleUpdate}
+            handleRemove={handleRemove}
+          />} />
         </Routes>
       </div>
     </div>
