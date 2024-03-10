@@ -54,7 +54,7 @@ const App = () => {
 
   const blogMatch = useMatch('/blogs/:id')
   const blog = blogMatch 
-    ? blogs.find(user => user.id == blogMatch.params.id)
+    ? blogs.find(blog => blog.id == blogMatch.params.id)
     : null
 
   const blogFormRef = useRef();
@@ -172,6 +172,7 @@ const App = () => {
             usernameBlog={blog?.user?.username} // question mark because no creating user in test ENV
             usernameUser={user?.username}
             id={blog?.id}
+            comments={blog?.comments}
             handleUpdate={handleUpdate}
             handleRemove={handleRemove}
           />} />
