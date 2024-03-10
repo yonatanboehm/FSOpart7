@@ -15,6 +15,7 @@ const userSlice = createSlice({
     },
     loadUser(state, action) {
       const user = JSON.parse(action.payload)
+      blogServices.setToken(user.token)
       return user
     },
     logout(state, action) {
